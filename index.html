@@ -4,92 +4,180 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jaydeep Modi | Portfolio</title>
+    <title>To-Do List | Jaydeep</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .todo-app {
+            background: #fff;
+            width: 100%;
+            max-width: 420px;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .3);
+        }
+
+        .todo-app h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #203a43
+        }
+
+        #taskCount {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #555
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px
+        }
+
+        .input-box input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none
+        }
+
+        .input-box button {
+            padding: 10px 16px;
+            border: none;
+            background: #00bcd4;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        ul {
+            list-style: none;
+            margin-top: 20px
+        }
+
+        ul li {
+            background: #f4f4f4;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer
+        }
+
+        ul li.done {
+            text-decoration: line-through;
+            color: #888
+        }
+
+        ul li span {
+            color: #ff5252;
+            font-size: 18px;
+            cursor: pointer
+        }
+    </style>
 </head>
 
 <body>
-
-    <!-- Navbar -->
-    <header class="navbar">
-        <h2 class="logo">Jaydeep</h2>
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#skills">Skills</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <h1>Hi, I'm <span>Jaydeep Modi</span></h1>
-        <h3>BCA Student | Aspiring Software Developer</h3>
-        <p>I build Java & Python projects and I am learning web development.</p>
-        <div class="buttons">
-            <a href="#projects" class="btn">View Projects</a>
-            <a href="#contact" class="btn outline">Contact Me</a>
+    <div class="todo-app">
+        <h2>📝 To-Do List</h2>
+        <p id="taskCount">Total Tasks: 0</p>
+        <div class="input-box">
+            <input type="text" id="taskInput" placeholder="Enter a task..." />
+            <button id="addBtn">Add</button>
         </div>
-    </section>
+        <ul id="taskList"></ul>
+    </div>
 
-    <!-- About -->
-    <section id="about" class="section">
-        <h2>About Me</h2>
-        <p>
-            I am a BCA student with strong interest in software development.
-            I have hands-on experience with Java and Python and I am currently
-            learning Git, GitHub, and frontend development.
-        </p>
-    </section>
+    <script>
+        const input = document.getElementById('taskInput');
+        const list = document.getElementById('taskList');
+        const countEl = document.getElementById('taskCount');
+        const addBtn = document.getElementById('addBtn');
 
-    <!-- Skills -->
-    <section id="skills" class="section dark">
-        <h2>Skills</h2>
-        <div class="skills-grid">
-            <div class="skill">Java</div>
-            <div class="skill">Python</div>
-            <div class="skill">OOP Concepts</div>
-            <div class="skill">Git & GitHub</div>
-            <div class="skill">HTML</div>
-            <div class="skill">CSS</div>
-        </div>
-    </section>
+        // Attach event safely (prevents addTask undefined error)
+        addBtn.addEventListener('click', addTask);
 
-    <!-- Projects -->
-    <section id="projects" class="section">
-        <h2>Projects</h2>
-        <div class="projects-grid">
-            <div class="project">
-                <h3>EMI Calculator</h3>
-                <p>Java program to calculate EMI using simple interest.</p>
-                <span>Java</span>
-            </div>
-            <div class="project">
-                <h3>Student Result System</h3>
-                <p>Accepts marks, validates input, and displays pass/fail.</p>
-                <span>Java</span>
-            </div>
-            <div class="project">
-                <h3>Unit Converter</h3>
-                <p>Converts meters, centimeters, and feet using command-line input.</p>
-                <span>Java</span>
-            </div>
-        </div>
-    </section>
+        // Load tasks on startup
+        window.addEventListener('DOMContentLoaded', loadTasks);
 
+        function addTask() {
+            if (input.value.trim() === '') {
+                alert('Enter a task');
+                return;
+            }
 
-    <section id="contact" class="section dark">
-        <h2>Contact Me</h2>
-        <p>Email: modijaydeep2@gmail</p>
+            const task = { text: input.value.trim(), done: false };
+            const tasks = getTasks();
+            tasks.push(task);
+            saveTasks(tasks);
+            input.value = '';
+            loadTasks();
+        }
 
-    </section>
+        function getTasks() {
+            return JSON.parse(localStorage.getItem('tasks')) || [];
+        }
 
-    <footer>
-        <p>© 2025 Jaydeep Modi</p>
-    </footer>
+        function saveTasks(tasks) {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
 
+        function loadTasks() {
+            list.innerHTML = '';
+            const tasks = getTasks();
+
+            countEl.innerText = `Total Tasks: ${tasks.length}`;
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.textContent = task.text;
+                if (task.done) li.classList.add('done');
+
+                const span = document.createElement('span');
+                span.textContent = '✖';
+
+                li.addEventListener('click', () => toggleTask(index));
+                span.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTask(index);
+                });
+
+                li.appendChild(span);
+                list.appendChild(li);
+            });
+        }
+
+        function toggleTask(index) {
+            const tasks = getTasks();
+            tasks[index].done = !tasks[index].done;
+            saveTasks(tasks);
+            loadTasks();
+        }
+
+        function deleteTask(index) {
+            const tasks = getTasks();
+            tasks.splice(index, 1);
+            saveTasks(tasks);
+            loadTasks();
+        }
+    </script>
 </body>
 
 </html>
